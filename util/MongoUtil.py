@@ -21,9 +21,9 @@ class MongoUtil:
             return False
 
     #Searchs if a website already has a password, searchField is [username/email, website]
-    def searchRecord(self, searchText, searchField):
+    def searchRecord(self, searchField, searchText):
         assert searchField in self.searchableFields
-        return self.coll.find_one(({searchField: searchText}))
+        return self.coll.find_one(({searchField: searchText}), {'_id':0, 'website':1, 'username':1, 'password':1})
 
     def printCollection(self):
         for row in self.coll:
