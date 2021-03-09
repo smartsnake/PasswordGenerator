@@ -3,18 +3,25 @@ import argparse
 from util.MongoUtil import MongoUtil
 from util.Generator import Generator
 
+#Custom help messages
+def help_msg(name=None):
+    return '''main.py [-h] [--length LENGTH] [--search SEARCHFIELD SEARCHTEXT]
+            '''
+def search_usage():
+    return'''python main.py --search website example.com
+             python main.py --search username admin
+    '''
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Creates new passwords and adds them to mondodb.')
-
+    #Argument requirments
+    parser = argparse.ArgumentParser(description='Creates new passwords and adds them to mondodb.', usage=help_msg())
     parser.add_argument('--length', '-l', action='store', default='15', dest='length',
                         help='Password length to be generated. (default=15)')
 
-    parser.add_argument('-s', '--search', nargs=2, action='store', dest='search',
-                        help='Used to search for existing password records.\n'
-                        +'Usage: python main.py --search website example.com')
-
+    parser.add_argument('--search','-s',  nargs=2, action='store', dest='search',
+                        help='Used to search for existing password records.')
     args = parser.parse_args()
+
 
     mongoUtil = MongoUtil()
     gen = Generator()
@@ -23,19 +30,21 @@ if __name__ == '__main__':
         search = args.search
         pass_len = int(args.length)
 
+        # Checks if search argument was previded
         if search is None or len(search) != 2:
             website = input("Enter website: ")
             username = input("Enter username/email: ")
             password = gen.generate_password(pass_len)
-            print(f"Password: {password}, Len: {len(password)}")
 
             record = {"website":website, "username":username, "password":password}
 
+            #Save into database
             if mongoUtil.addRecord(record):
                 print("Record added.")
             else:
                 print("Recorded failed.")
 
+        # Dont create password, search database instead.
         else:
             if search[0] not in mongoUtil.searchableFields:
                 print(f'Searchable fields are [username or website]')

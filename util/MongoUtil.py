@@ -2,6 +2,7 @@ from pymongo import MongoClient
 
 class MongoUtil:
     def __init__(self, host='localhost', port=27017):
+        #The only fields that are searchabel
         self.searchableFields = ['website','username']
         try:
             self.client = MongoClient(host, port)
