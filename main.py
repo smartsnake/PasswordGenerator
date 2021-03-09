@@ -5,6 +5,7 @@ from util.Generator import Generator
 
 if __name__ == '__main__':
     mongoUtil = MongoUtil()
+    gen = Generator()
 
     if len(sys.argv) < 2:
         print("Pass password length as arg")
@@ -17,7 +18,7 @@ if __name__ == '__main__':
         website = input("Enter website: ")
         username = input("Enter username/email: ")
 
-        password = generate_password(pass_len)
+        password = gen.generate_password(pass_len)
         print(f"Password: {password}, Len: {len(password)}")
 
         record = {"website":website, "username":username, "password":password}
