@@ -17,3 +17,5 @@ My custom relacement to LastPass
 6. More test cases
 
 7. Improve Readme
+
+8. Option to import from LastPass
