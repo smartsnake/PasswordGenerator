@@ -1,4 +1,4 @@
-import sys
+import sys,os
 import argparse
 from util.MongoUtil import MongoUtil
 from util.Generator import Generator
@@ -20,6 +20,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--search','-s',  nargs=2, action='store', dest='search',
                         help='Used to search for existing password records.')
+
+    parser.add_argument('--import', '-i', action='store', dest='location',
+                        help='Import LastPass csv file.')
+
     args = parser.parse_args()
 
 
@@ -28,10 +32,17 @@ if __name__ == '__main__':
 
     try:
         search = args.search
+        importLocation = args.location
         pass_len = int(args.length)
 
+        #Import LastPass CSV data
+        if importLocation is not None:
+            assert os.path.exists(importLocation)
+            mongoUtil.importLastPass(importLocation)
+            print('Imported CSV Successfully')
+
         # Checks if search argument was previded
-        if search is None or len(search) != 2:
+        elif search is None or len(search) != 2:
             website = input("Enter website: ")
             username = input("Enter username/email: ")
             password = gen.generate_password(pass_len)

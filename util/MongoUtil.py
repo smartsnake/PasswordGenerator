@@ -1,4 +1,6 @@
 from pymongo import MongoClient
+import pandas as pd
+import json
 
 class MongoUtil:
     def __init__(self, host='localhost', port=27017):
@@ -20,6 +22,18 @@ class MongoUtil:
             return True
         except:
             return False
+
+    #Import csv lastpass into database
+    def importLastPass(self, fileLocation):
+        try:
+            df = pd.read_csv(fileLocation)
+            df = df[['name', 'username', 'password']]
+            df.columns = ['website', 'username', 'password']
+            records = json.loads(df.T.to_json()).values()
+            self.coll.insert_many(records)
+        except:
+            print('Import Failed.')
+
 
     #Searchs if a website already has a password, searchField is [username/email, website]
     def searchRecord(self, searchField, searchText):
