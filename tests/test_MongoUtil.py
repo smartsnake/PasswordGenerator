@@ -6,3 +6,4 @@ client = None
 def test_Constructor():
     client = MongoUtil()
     assert client is not None
+
