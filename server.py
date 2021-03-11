@@ -1,6 +1,5 @@
 
 from flask import Flask, request, jsonify
-from pymongo import MongoClient
 from bson.json_util import dumps
 import json
 import os

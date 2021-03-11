@@ -22,7 +22,7 @@ class MongoUtil:
             password_coll = new_database['PasswordCollection']
 
             # You have to insert a record in order to create database/collections.
-            password_coll.insert({'website:': 'DELETE', 'username': 'DELETE', 'password': 'DELETE'})
+            password_coll.insert_one({'website:': 'DELETE', 'username': 'DELETE', 'password': 'DELETE'})
             # Delete unused record
             password_coll.delete_one({'website:': 'DELETE', 'username': 'DELETE', 'password': 'DELETE'})
             return True
