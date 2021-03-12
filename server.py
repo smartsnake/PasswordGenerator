@@ -13,6 +13,14 @@ def create_application():
     mongoUtil = MongoUtil()
     gen = Generator()
 
+    #Check if a string can be converted to int
+    def RepresentsInt(s):
+        try: 
+            int(s)
+            return True
+        except ValueError:
+            return False
+
     # Create new database from new user
     @application.route("/NewUser", methods=['POST'])
     def new_user():
@@ -63,6 +71,23 @@ def create_application():
                 return 'Error in saving new record.', 400
         except Exception as e:
             return {'error': str(e)}
+
+    @application.route("/GeneratePassword", methods=['GET'])
+    def generate_password():
+        try:
+            if(request.is_json):
+                gen_prop = request.get_json()
+                length = 15
+                if gen_prop['length'] is not None:
+                    length = int(gen_prop['length'])
+                return dumps({'password': gen.generate_password(length)}), 200
+            else:
+                length = 15
+                return dumps({'password': gen.generate_password(length)}), 200
+
+        except Exception as e:
+            return {'error': str(e)}
+
     return application
 
 if __name__ == '__main__':
