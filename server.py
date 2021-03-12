@@ -6,62 +6,67 @@ import os
 from util.MongoUtil import MongoUtil
 from util.Generator import Generator
 
-application = Flask(__name__)
+def create_application():
+    application = Flask(__name__)
 
-# Helper classes
-mongoUtil = MongoUtil()
-gen = Generator()
+    # Helper classes
+    mongoUtil = MongoUtil()
+    gen = Generator()
 
-# Create new database from new user
-@application.route("/NewUser", methods=['POST'])
-def new_user():
-    try:
-        if(request.is_json):
-            account = request.get_json()
-            mongoUtil.newDatabase(account['id'])
-            return "OK"
-        else:
-            return 'Error in creating database.'
-    except Exception as e:
-        print({'error': str(e)})
-
-# Send (soon to be) encrypted data to user
-@application.route("/UserData", methods=['GET'])
-def user_data():
-    try:
-        if(request.is_json):
-            account = request.get_json()
-            return dumps(mongoUtil.getCollection(account['id']))
-        else:
-            return 'Error in creating database.'
-    except Exception as e:
-        print({'error': str(e)})
-
-# Add (soon to be) encrypted info to that users database
-@application.route("/NewPassword", methods=['PUT'])
-def new_password():
-    try:
-        if(request.is_json):
-            json_object = request.get_json()
-            account = json_object['account']
-            record = json_object['record']
-
-            # Must have these fields
-            assert record["website"] is not None
-            assert record["username"] is not None
-            assert record["password"] is not None
-
-            if mongoUtil.addRecordRemote(account['id'], record):
-                return "OK"
+    # Create new database from new user
+    @application.route("/NewUser", methods=['POST'])
+    def new_user():
+        try:
+            if(request.is_json):
+                account = request.get_json()
+                mongoUtil.newDatabase(account['id'])
+                return "OK", 200
             else:
-                return "Error"
-        else:
-            return 'Error in saving new record.'
-    except Exception as e:
-        return {'error': str(e)}
+                return 'Error in creating database.', 400
+        except Exception as e:
+            print({'error': str(e)})
 
+    # Send (soon to be) encrypted data to user
+    @application.route("/UserData", methods=['GET'])
+    def user_data():
+        try:
+            if(request.is_json):
+                account = request.get_json()
+                return jsonify(dumps(mongoUtil.getCollection(account['id'])))
+            else:
+                return 'Error in getting database.', 401
+        except Exception as e:
+            print({'error': str(e)})
+
+    # Add (soon to be) encrypted info to that users database
+    @application.route("/NewPassword", methods=['PUT'])
+    def new_password():
+        try:
+            if(request.is_json):
+                json_object = request.get_json()
+                account = json_object['account']
+                record = json_object['record']
+
+                assert account is not None
+
+                # Must have these fields
+                assert record["website"] is not None
+                assert record["username"] is not None
+                assert record["password"] is not None
+                assert account['id'] is not None
+
+                if mongoUtil.addRecordRemote(account['id'], record):
+                    return "OK"
+                else:
+                    return "Error", 400
+            else:
+                return 'Error in saving new record.', 400
+        except Exception as e:
+            return {'error': str(e)}
+    return application
 
 if __name__ == '__main__':
     ENVIRONMENT_DEBUG = os.environ.get("APP_DEBUG", True)
     ENVIRONMENT_PORT = os.environ.get("APP_PORT", 5000)
+    application = create_application()
     application.run(host='0.0.0.0', port=ENVIRONMENT_PORT, debug=ENVIRONMENT_DEBUG)
